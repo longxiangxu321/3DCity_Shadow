@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/refer.dir/point_grid.cpp.o -o refer 
