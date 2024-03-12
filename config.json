@@ -1,0 +1,21 @@
+{
+    "study_area": {
+        "timezone": "Europe/Amsterdam",
+        "lat": 52.285126,
+        "long": 6.435649,
+        "start_time": "2013-12-31 00:00:00",
+        "end_time": "2014-01-01 23:59:59",
+        "data_root": "./data/rh",
+        "frequency": "H"
+        
+    },
+    "shadow_calc": {
+        "output_folder_name": "output_20240312_155245",
+        "save_result_pc": false,
+        "target_surfaces": [
+            "WallSurface",
+            "RoofSurface"
+        ]
+    },
+    "num_threads": 4
+}
