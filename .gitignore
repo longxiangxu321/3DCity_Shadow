@@ -1,0 +1,6 @@
+data/*
+.vscode/*
+.ipynb_checkpoints/*
+build/*
+out/*
+.vs/*
