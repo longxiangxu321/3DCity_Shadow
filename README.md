@@ -48,7 +48,8 @@ pip install pvlib numpy pytz pandas
             "WallSurface",
             "RoofSurface"
         ]
-    }
+    },
+    "num_treads":4
 }
 ```
 
@@ -66,6 +67,9 @@ For your own project: following configuration needs to be set accordingly:
 - target_surfaces
   - The surface for which you wish to calculate if they are shadowed. 
   - Recommended for using "WallSurface" and "RoofSurface". Others available. Please refer OGC CityGML standards.
+- num_threads
+  - According to your device
+
 
 ## Expected folder structure
 
