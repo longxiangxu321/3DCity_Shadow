@@ -286,9 +286,7 @@ std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>
 int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, const std::vector<GridPoint> &point_grid, const std::filesystem::path &result_path) {
     std::ofstream outfile(result_path, std::ios::binary);
 
-//    const size_t buffer_size = 100000; // Size of the buffer in terms of GridPoints
-//    std::vector<unsigned char> buffer;
-//    buffer.reserve(buffer_size * ((directions.size() + 7) / 8));
+
     bool save_point = CFG["shadow_calc"]["save_result_pc"];
     auto total_start = std::chrono::high_resolution_clock::now();
     int n_row = point_grid.size();
@@ -306,14 +304,17 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
     gmlidArray[j] = *(point_grid[j].surf_gmlid);
     }
 
-    #pragma omp parallel for
+    long completed_iter = 0;
+
+    const int update_interval_seconds = 10; // Update ETA every 10 seconds
+    auto last_update_time = std::chrono::high_resolution_clock::now();
+    int total_iterations = directions.size() * point_grid.size();
+
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < directions.size(); ++i) {
-        auto start = std::chrono::high_resolution_clock::now();
-
-        std::stringstream ss;
-
         for (int j = 0; j < point_grid.size(); j += 1) {
-            // if (i==0) gmlidArray[j]= *(point_grid[j].surf_gmlid);
+            #pragma omp atomic
+            completed_iter += 1;
 
             vec3 origin = point_grid[j].position;
             ray r(origin, directions[i]);
@@ -321,19 +322,23 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
             int counts = 0;
             if (dot(point_grid[j].normal, directions[i]) > 0) {
                     if (!bvh.hit(r, 0, infinity, rec)) {
-                        // if (save_point)
-                        //     ss <<std::setprecision(10) << r.origin().x() << " " << r.origin().y() << " " << r.origin().z() <<"\n";
                         binaryArray[j][i]=1;
                     }
             }
+            auto current_time = std::chrono::high_resolution_clock::now();
+            auto elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(current_time - last_update_time).count();
+            if (elapsed_seconds >= update_interval_seconds) {
+                last_update_time = current_time; // Update last update time
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - total_start).count();
+                float percentage = (completed_iter / static_cast<float>(total_iterations)) * 100;
+                double eta_ms = duration / 1000 * (100 - percentage) / percentage;
+                std::chrono::milliseconds eta(static_cast<long long>(eta_ms));
+                auto hours = eta.count() / 3600;
+                auto minutes = (eta.count() % 3600) / 60;
+                auto seconds = eta.count() % 60;
+                std::cout << percentage << "\% are done. " << "eta: " << hours << " hours " << minutes << " minutes " << seconds << " seconds" << std::endl;
+            }
         }
-        // if (save_point) {
-        //     std::string result_pc_path = CFG["shadow_calc"]["result_pc_path"];
-        //     std::string out_file = result_pc_path + "pc" + std::to_string(i) + ".xyz";
-        //     std::ofstream out(out_file);
-        //     out << ss.str();
-        // }
-
     }
 
 
@@ -448,23 +453,24 @@ std::vector<vec3> readCSVandTransform(const std::filesystem::path& filename) {
 
 int main() {
 
-    std::filesystem::path current_path = "../../..";
+    // std::filesystem::path current_path = "../../..";
+    std::filesystem::path current_path = "../";
     try {
         std::filesystem::current_path(current_path); // Set the current working directory
         std::cout << "Current working directory changed to: " << std::filesystem::current_path() << std::endl;
     } catch(const std::filesystem::filesystem_error& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error when changing current directory: " << e.what() << std::endl;
     }
 
     if (std::filesystem::exists("config.json")) {
-        std::cout << "File exists." << std::endl;
+        std::cout << "Config file exists." << std::endl;
     }
     else {
-        throw std::runtime_error("File does not exist.");
+        throw std::runtime_error("Config file does not exist.");
     }
 
     readConfig("config.json");
-
+    std::cout << "Config file read." << std::endl;
 
 
     std::filesystem::path root_folder = CFG["study_area"]["data_root"];
