@@ -336,7 +336,7 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
                 auto hours = eta.count() / 3600;
                 auto minutes = (eta.count() % 3600) / 60;
                 auto seconds = eta.count() % 60;
-                std::cout << percentage << "\% are done. " << "eta: " << hours << " hours " << minutes << " minutes " << seconds << " seconds" << std::endl;
+                std::cout << std::round(percentage * 100) / 100 << "\% are done. " << "eta: " << hours << " hours " << minutes << " minutes " << seconds << " seconds" << std::endl;
             }
         }
     }
