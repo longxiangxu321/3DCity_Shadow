@@ -157,8 +157,7 @@ data
 					- shadow_result_grid.xyz
 				- gmlids.csv
 				- results.bin
-			- irradiance_result
-				- hourly_irradiance.npz
+			- hourly_irradiance.npz
 			- config.json
 ```
 
