@@ -128,7 +128,13 @@ cd build
 
 # Solar Irradiance Calculation
 
-Follow the instructions in **"irradiance_calculation_hourly.ipynb"**
+go to the project root folder:
+
+```
+python calculate_irradiance.py
+```
+
+
 
 
 
