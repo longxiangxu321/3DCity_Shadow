@@ -1,20 +1,20 @@
 {
     "study_area": {
         "timezone": "Europe/Amsterdam",
-        "lat": 52.0839849014801, 
-        "long": 4.297953003000551,
+        "lat": 50.84819137570894,
+        "long": 5.690157653237928,
         "start_time": "2023-01-01 00:00:00",
         "end_time": "2023-01-02 00:00:00",
-        "data_root": "./data/DenHaag",
+        "data_root": "./data/Maastricht",
         "frequency": "H"
     },
     "shadow_calc": {
         "save_result_pc": false,
-        "output_folder_name": "output_20240320",
+        "output_folder_name": "output",
         "target_surfaces": [
             "WallSurface",
             "RoofSurface"
         ]
     },
-    "num_threads": 16
+    "num_threads": 14
 }
