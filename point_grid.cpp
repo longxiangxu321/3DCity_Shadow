@@ -288,7 +288,7 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
 
 
     bool save_point = CFG["shadow_calc"]["save_result_pc"];
-    auto total_start = std::chrono::high_resolution_clock::now();
+    
     int n_row = point_grid.size();
     int n_col = directions.size();
     std::vector<std::vector<int>> binaryArray(n_row, std::vector<int>(n_col, 0));
@@ -304,22 +304,21 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
     gmlidArray[j] = *(point_grid[j].surf_gmlid);
     }
 
-    long completed_iter = 0;
-
-    const int update_interval_seconds = 10; // Update ETA every 10 seconds
+    long long completed_iter = 0;
+    auto total_start = std::chrono::high_resolution_clock::now();
+    const int update_interval_seconds = 30; // Update ETA every 10 seconds
     auto last_update_time = std::chrono::high_resolution_clock::now();
-    int total_iterations = directions.size() * point_grid.size();
+    long long total_iterations = directions.size() * point_grid.size();
 
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < directions.size(); ++i) {
         for (int j = 0; j < point_grid.size(); j += 1) {
             #pragma omp atomic
             completed_iter += 1;
-
             vec3 origin = point_grid[j].position;
             ray r(origin, directions[i]);
             hit_record rec;
-            int counts = 0;
+            // int counts = 0;
             if (dot(point_grid[j].normal, directions[i]) > 0) {
                     if (!bvh.hit(r, 0, infinity, rec)) {
                         binaryArray[j][i]=1;
@@ -329,19 +328,35 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
             auto elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(current_time - last_update_time).count();
             if (elapsed_seconds >= update_interval_seconds) {
                 last_update_time = current_time; // Update last update time
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - total_start).count();
-                float percentage = (completed_iter / static_cast<float>(total_iterations)) * 100;
-                double eta_ms = duration / 1000 * (100 - percentage) / percentage;
-                std::chrono::milliseconds eta(static_cast<long long>(eta_ms));
-                auto hours = eta.count() / 3600;
-                auto minutes = (eta.count() % 3600) / 60;
-                auto seconds = eta.count() % 60;
-                std::cout << std::round(percentage * 100) / 100 << "\% are done. " << "eta: " << hours << " hours " << minutes << " minutes " << seconds << " seconds" << std::endl;
+                auto duration = std::chrono::duration_cast<std::chrono::seconds>(current_time - total_start).count();
+                long double percentage = 100 * static_cast<long double>(completed_iter) / static_cast<long double>(total_iterations);
+                // std::cout<<completed_iter<<"/"<<total_iterations<<std::endl;
+                // std::cout<<percentage<<std::endl;
+
+                // auto elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(current_time - total_start).count();
+                float total_estimated_time = duration / (percentage / 100.0);
+                std::cout<<"duration"<<duration<<std::endl;
+                std::cout<<"percentage"<<percentage<<std::endl;
+                int eta_seconds = static_cast<int>(total_estimated_time - duration);
+                // std::cout << eta_seconds << std::endl;
+                // Convert `eta_seconds` to hours, minutes, and seconds
+                int hours = eta_seconds / 3600;
+                int minutes = (eta_seconds % 3600) / 60;
+                int seconds = eta_seconds % 60;
+                // double eta_ms = (duration / 1000) * ((100 - percentage) / percentage);
+                // std::chrono::milliseconds eta(static_cast<long long>(eta_ms));
+                // auto hours = eta.count() / 3600;
+                // auto minutes = (eta.count() % 3600) / 60;
+                // auto seconds = eta.count() % 60;
+                std::cout << percentage << "\% are done. " << "eta: " << hours << " hours " << minutes << " minutes " << seconds << " seconds" << std::endl;
             }
         }
     }
 
+    auto total_end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(total_end - total_start).count();
 
+    print("saving result to files...");
 
     std::ofstream outFile(result_path, std::ios::out | std::ios::binary);
 
@@ -402,8 +417,7 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
     std::cout << "Binary array saved to " << result_path << std::endl;
 
 
-    auto total_end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(total_end - total_start).count();
+
     outfile.close();
     return duration;
 }
