@@ -10,6 +10,8 @@ add_executable(shadow_calculation
         src/point_grid.cpp
         src/IO.h
         src/IO.cpp
+        src/sample_pointGrid.h
+        src/sample_pointGrid.cpp
         ${DEFINITIONS})
 
 target_include_directories(shadow_calculation PRIVATE .)
