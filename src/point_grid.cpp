@@ -17,6 +17,8 @@
 #include "include/bvh.h"
 #include "include/grid_point.h"
 #include "include/json.hpp"
+#include "IO.h"
+
 
 #include <omp.h>
 
@@ -144,144 +146,6 @@ std::vector<GridPoint> create_point_grid(const std::vector<std::vector<Triangle>
     return grid_current;
 }
 
-std::vector<std::vector<Triangle>> read_obj(const std::string &input_file){
-    std::ifstream input_stream;
-    input_stream.open(input_file);
-    std::vector<std::vector<Triangle>> objects;
-    std::vector<point3> points;
-    std::vector<Triangle> current_object;
-
-    bool first_object_read = false;
-    int index = 1;
-
-    if (input_stream.is_open()) {
-        std::string line;
-        while (std::getline(input_stream, line)) {
-            if (line[0] == 'v') {
-                double x,y,z;
-                std::stringstream ss(line);
-                std::string temp;
-                ss >> temp >> x >> y >> z;
-                points.emplace_back(x, y, z);
-            }
-            if (line[0] == 'o') {//every o means a new object
-                if (!first_object_read) {
-                    first_object_read = true;
-                } else {
-                    objects.push_back(current_object);
-                    current_object.clear();
-                    index++;
-                }
-            }
-            if (line[0] == 'f') {//shell has different Faces
-                unsigned long v0, v1, v2;
-                std::stringstream ss(line);
-                std::string temp;
-                ss >> temp >> v0 >> v1 >> v2;
-                point3 vx = points[v0-1];
-                point3 vy = points[v1-1];
-                point3 vz = points[v2-1];
-                current_object.emplace_back(Triangle(vx, vy, vz,index));
-            }
-            else {
-                continue;
-            }
-        }
-        if (!current_object.empty()) {
-            objects.push_back(current_object);
-        }
-    }
-
-    return objects;
-};
-
-std::vector<vec3> get_coordinates(const json& j, bool translate) {
-    std::vector<vec3> lspts;
-    std::vector<std::vector<int>> lvertices = j["vertices"];
-    if (translate) {
-        for (auto& vi : lvertices) {
-            double x = (vi[0] * j["transform"]["scale"][0].get<double>()) + j["transform"]["translate"][0].get<double>();
-            double y = (vi[1] * j["transform"]["scale"][1].get<double>()) + j["transform"]["translate"][1].get<double>();
-            double z = (vi[2] * j["transform"]["scale"][2].get<double>()) + j["transform"]["translate"][2].get<double>();
-            lspts.push_back(vec3(x, y, z));
-        }
-    } else {
-        //-- do not translate, useful to keep the values low for downstream processing of data
-        for (auto& vi : lvertices) {
-            double x = (vi[0] * j["transform"]["scale"][0].get<double>());
-            double y = (vi[1] * j["transform"]["scale"][1].get<double>());
-            double z = (vi[2] * j["transform"]["scale"][2].get<double>());
-            lspts.push_back(vec3(x, y, z));
-        }
-    }
-    return lspts;
-}
-
-std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>>> read_json(const std::string &input_file, bool target) {
-    std::unordered_set<std::string> targetTypes = {"WallSurface", "RoofSurface"};
-
-    std::fstream input(input_file);
-    json j;
-    input >> j;
-    input.close();
-    std::vector<vec3> lspts = get_coordinates(j, true);
-    std::vector<std::vector<Triangle>> all_objects;
-    std::vector<std::vector<Triangle>> target_objects;
-    int index = 1;
-
-    for (auto &co: j["CityObjects"].items()) {    //.items() return the key-value pairs belong to the CityObjects
-        if (co.value()["type"] == "BuildingPart" || co.value()["type"] == "Building") {
-            std::vector<Triangle> current_all_object;
-            std::vector<Triangle> current_target_object;
-            for (auto &g: co.value()["geometry"]) {
-                if (g["lod"]=="2") {
-                    std::unordered_map<std::string, std::shared_ptr<std::string>> gmlidMap;
-
-                    for (int i = 0; i< g["boundaries"].size(); i++) {
-                        if (target) {
-                            std::vector<std::vector<int>> triangle = g["boundaries"][i];
-                            point3 vx = lspts[triangle[0][0]];
-                            point3 vy = lspts[triangle[0][1]];
-                            point3 vz = lspts[triangle[0][2]];
-                            Triangle Tri = Triangle(vx, vy, vz, index);
-                            index++;
-                            int semantic_index = g["semantics"]["values"][i];
-                            std::string surf_type = g["semantics"]["surfaces"][semantic_index]["type"];
-                            if (targetTypes.find(surf_type) != targetTypes.end()) {
-                                std::string gmlid = g["semantics"]["surfaces"][semantic_index]["id"];
-
-                                auto it = gmlidMap.find(gmlid);
-                                if (it == gmlidMap.end()) {
-                                    // If not found, create a shared pointer for the gmlid
-                                    std::shared_ptr<std::string> gmlidPtr = std::make_shared<std::string>(gmlid);
-                                    it = gmlidMap.emplace(gmlid, gmlidPtr).first;  // Add it to the map
-                                }
-
-                                Tri.surf_gmlid = it->second;
-                                current_target_object.emplace_back(Tri);
-                            }
-                            current_all_object.emplace_back(Tri);
-                        }
-                        else {
-                            std::vector<std::vector<int>> triangle = g["boundaries"][0][i];
-                            point3 vx = lspts[triangle[0][0]];
-                            point3 vy = lspts[triangle[0][1]];
-                            point3 vz = lspts[triangle[0][2]];
-                            Triangle Tri = Triangle(vx, vy, vz, index);
-                            index++;
-                            current_all_object.emplace_back(Tri);
-                        }
-
-                    }
-                }
-            }
-            all_objects.emplace_back(current_all_object);
-            target_objects.emplace_back(current_target_object);
-        }
-    }
-    std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>>> result = std::tuple(all_objects, target_objects);
-    return result;
-}
 
 int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, const std::vector<GridPoint> &point_grid, const std::filesystem::path &result_path) {
     std::ofstream outfile(result_path, std::ios::binary);
@@ -356,7 +220,7 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
     auto total_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(total_end - total_start).count();
 
-    print("saving result to files...");
+    std::cout <<"saving result to files..." << std::endl;
 
     std::ofstream outFile(result_path, std::ios::out | std::ios::binary);
 
@@ -423,47 +287,6 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
 }
 
 
-std::vector<vec3> readCSVandTransform(const std::filesystem::path& filename) {
-    std::vector<vec3> unitVectors;
-    std::ifstream file(filename);
-
-    if (!file.is_open()) {
-        std::ostringstream oss;
-        oss << "Could not open file: " << filename;
-        throw std::runtime_error(oss.str());
-    }
-
-    std::string line;
-    std::getline(file, line); // skip header
-
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string cell;
-
-        std::getline(ss, cell, ','); // skip date/time
-
-        std::getline(ss, cell, ',');
-        double apparent_elevation = std::stod(cell);
-        std::getline(ss, cell, ',');
-        double azimuth = std::stod(cell);
-
-        // Skip remaining columns
-        while (std::getline(ss, cell, ',')) {}
-
-        double theta = degrees_to_radians(apparent_elevation);
-        double phi =  degrees_to_radians(azimuth - 90);
-
-        // Conversion to unit vector (in spherical coordinates)
-        double x = cos(theta) * cos(phi);
-        double y = - cos(theta) * sin(phi);
-        double z = sin(theta);
-//        std::cout<<x<<" "<<y<<" "<<z<<std::endl;
-        unitVectors.push_back(vec3(x, y, z));
-    }
-
-    file.close();
-    return unitVectors;
-}
 
 int main() {
 
@@ -506,18 +329,18 @@ int main() {
 
     CFG["shadow_calc"]["gmlid_path"] = shadow_result_dir / "gmlids.csv";
 
-    std::vector<vec3> directions = readCSVandTransform(sun_dir);
+    std::vector<vec3> directions = IO::readCSVandTransform(sun_dir);
     std::cout<<"moment number "<<directions.size()<<std::endl;
 
     std::vector<std::vector<Triangle>> objects;
 
     for(const auto & entry : std::filesystem::directory_iterator(in_dir)) {
         if(entry.path().extension() == ".obj") {
-            std::vector<std::vector<Triangle>> obj1 = read_obj(entry.path().string());
+            std::vector<std::vector<Triangle>> obj1 = IO::read_obj(entry.path().string());
             objects.insert(objects.end(), obj1.begin(), obj1.end());
         }
         else if (entry.path().extension() == ".json") {
-            std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>>> result = read_json(entry.path().string(), true);
+            std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>>> result = IO::read_json(entry.path().string(), true);
             std::vector<std::vector<Triangle>> obj_target = std::get<1>(result);
             objects.insert(objects.end(), obj_target.begin(), obj_target.end());
         }
@@ -526,11 +349,11 @@ int main() {
     std::vector<std::vector<Triangle>> surrounding_objects;
     for(const auto & entry : std::filesystem::directory_iterator(en_dir)) {
         if(entry.path().extension() == ".obj") {
-            std::vector<std::vector<Triangle>> obj1 = read_obj(entry.path().string());
+            std::vector<std::vector<Triangle>> obj1 = IO::read_obj(entry.path().string());
             surrounding_objects.insert(surrounding_objects.end(), obj1.begin(), obj1.end());
         }
         else if (entry.path().extension() == ".json") {
-            std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>>> result = read_json(entry.path().string(), false);
+            std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>>> result = IO::read_json(entry.path().string(), false);
             std::vector<std::vector<Triangle>> obj_all = std::get<0>(result);
             surrounding_objects.insert(surrounding_objects.end(), obj_all.begin(), obj_all.end());
         }

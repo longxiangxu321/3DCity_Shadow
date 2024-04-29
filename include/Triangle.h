@@ -33,7 +33,7 @@ public:
     bool hit1(const ray &r) const;
 };
 
-bool Triangle::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
+inline bool Triangle::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
 //    std::cout<<"reach a triangle"<<std::endl;
 //    std::cout<<"v0 "<<v0.x()<<" "<<v0.y()<<" "<<v0.z()<<std::endl;
 //    std::cout<<"v1 "<<v1.x()<<" "<<v1.y()<<" "<<v1.z()<<std::endl;
@@ -66,7 +66,7 @@ bool Triangle::hit(const ray &r, double t_min, double t_max, hit_record &rec) co
 }
 
 
-bool Triangle::bounding_box(double time0, double time1, aabb &output_box) const {
+inline bool Triangle::bounding_box(double time0, double time1, aabb &output_box) const {
     double min_x, min_y, min_z, max_x, max_y, max_z;
     min_x = std::min(v0.x(), std::min(v1.x(), v2.x()));
     min_y = std::min(v0.y(), std::min(v1.y(), v2.y()));
@@ -78,7 +78,7 @@ bool Triangle::bounding_box(double time0, double time1, aabb &output_box) const 
     return true;
 }
 
-double Triangle::area() const {
+inline double Triangle::area() const {
     double area = normal.length()/2;
     return area;
 }
