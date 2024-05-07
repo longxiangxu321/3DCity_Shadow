@@ -5,3 +5,6 @@ build/*
 out/*
 .vs/*
 test_other.ipynb
+analysis/citysim/*
+analysis/kml_files/*
+analysis/*.txt
