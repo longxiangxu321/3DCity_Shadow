@@ -11,6 +11,11 @@ import contextlib
 from tqdm import tqdm
 import joblib
 # Set up basic configuration for logging
+script_path = os.path.abspath(__file__)
+script_dir = os.path.dirname(script_path)
+parent_dir = os.path.dirname(script_dir)
+os.chdir(parent_dir)
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 with open('config.json', 'r') as file:
     CFG = json.load(file)
@@ -99,6 +104,43 @@ def aggregate_shadow(gmlids, merged_result):
     # result_array = np.hstack((aggregated_data[:, :-1], aggregated_data[:, -3:]))
     return aggregated_data, unique_gmlids
 
+def obtain_epw(filename, sunpos):
+    epw = pvlib.iotools.read_epw(filename)
+    epw_data = epw[0]
+    irradiance_data = epw[0]
+    irradiance_data.index = pd.to_datetime(irradiance_data.index)
+
+    sunpos['timestamp'] = pd.to_datetime(sunpos['timestamp'], utc=True)
+    all_ghi = []
+    all_dni = []
+    all_dhi = []
+    all_solar_zenith = []
+    all_solar_azimuth = []
+    all_dni_extra = []
+
+    for index, row in sunpos.iterrows():
+            row_time = row['timestamp'].tz_convert(irradiance_data.index.tz)
+            month, day, hour = row_time.month, row_time.day, row_time.hour
+            match = irradiance_data[(irradiance_data.index.month == month) & 
+                        (irradiance_data.index.day == day) & 
+                        (irradiance_data.index.hour == hour)]
+            solar_zenith = row['apparent_zenith']
+            solar_azimuth = row['azimuth']
+            # dni_extra = pvlib.irradiance.get_extra_radiation(row['timestamp'])
+            if (not match.empty):
+                ghi, dni, dhi, dni_extra = match.iloc[0][['ghi', 'dni', 'dhi', 'etrn']]
+                if dni_extra == 0:
+                    dni_extra = pvlib.irradiance.get_extra_radiation(row['timestamp'])
+                all_ghi.append(ghi)
+                all_dni.append(dni)
+                all_dhi.append(dhi)
+                all_solar_zenith.append(solar_zenith)
+                all_solar_azimuth.append(solar_azimuth)
+                all_dni_extra.append(dni_extra)
+            else:
+                print("error finding match")
+    
+    return all_ghi, all_dni, all_dhi, all_solar_zenith, all_solar_azimuth, all_dni_extra
 
 def obtain_tmy(latitude, longitude, sunpos):
     tmy = pvlib.iotools.get_pvgis_tmy(latitude, longitude)
@@ -250,10 +292,16 @@ if __name__ == '__main__':
     # result_array[:, -6:-3] are xyz coordinates
     # result_array[:, -3:] are the normal vectors
 
-    print("Obtaining and processing tmy data...")
-    all_ghi, all_dni, all_dhi, all_solar_zenith, all_solar_azimuth, all_dni_extra = obtain_tmy(latitude, longitude, sunpos)
+    if CFG['epw_file']:
+        weather_data = 'epw'
+        print("Obtaining and processing epw data...")
+        all_ghi, all_dni, all_dhi, all_solar_zenith, all_solar_azimuth, all_dni_extra = obtain_epw(CFG['epw_file'], sunpos)
+    else:
+        weather_data = 'tmy'
+        print("Obtaining and processing tmy data...")
+        all_ghi, all_dni, all_dhi, all_solar_zenith, all_solar_azimuth, all_dni_extra = obtain_tmy(latitude, longitude, sunpos)
     all_airmass = get_airmass(all_solar_zenith)
-
+    print(np.min(all_dni_extra))
 
     print("Calculating irradiance in parallel with {} threads...".format(CFG['num_threads']))
     model = CFG['irradiance_model']
@@ -268,8 +316,12 @@ if __name__ == '__main__':
 
     unique_gmlids_arr = np.array(unique_gmlids)
 
+    
     save_path = os.path.join(CFG['study_area']['data_root'], CFG['shadow_calc']['output_folder_name'],
-                                model+'_hourly_result.npz')
+                                model+f'''_{weather_data}'''+'_hourly_result.npz')
+
+    print(f'''Saving result to {save_path}''')
+
 
 
     np.savez(save_path, gmlids=unique_gmlids_arr, hourly_irradiance=total_irradiance)

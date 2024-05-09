@@ -7,4 +7,7 @@ out/*
 test_other.ipynb
 analysis/citysim/*
 analysis/kml_files/*
+analysis/epwfiles/*
+analysis/kml_epw/*
+analysis/tmy3_result
 analysis/*.txt
