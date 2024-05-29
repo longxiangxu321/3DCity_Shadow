@@ -10,6 +10,7 @@ struct GridPoint {
     vec3 position;
     vec3 normal;
     std::shared_ptr<std::string> surf_gmlid;
+    std::vector<vec3> hemisphere_samples;
 
     GridPoint() = default;
     GridPoint(const vec3& ori, const vec3 dir): position(ori), normal(dir) {}

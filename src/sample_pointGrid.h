@@ -16,7 +16,10 @@ namespace sampling {
                             const int &max_depth = 10, const std::shared_ptr<std::string> &surf_gmlid_ptr = nullptr);
 
     std::vector<GridPoint> create_point_grid(const std::vector<std::vector<Triangle>>& mesh, const json& CFG);
-    }
+    
 
+    std::vector<vec3> hemisphere_sampling(const vec3 &direction, const float seperation_in_degrees);
+
+}
 
 #endif

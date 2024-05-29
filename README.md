@@ -5,6 +5,14 @@ This is for calculate and store results in .bin file. No point cloud stored.
 
 
 
+# TODO
+
+- [ ] SVF
+
+
+
+
+
 # Shadow Calculation
 
 ## Environment

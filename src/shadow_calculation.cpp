@@ -19,13 +19,15 @@
 #include "include/json.hpp"
 #include "IO.h"
 #include "sample_pointGrid.h"
-
+#include <bitset>
 
 #include <omp.h>
 
 using json = nlohmann::json;
 json CFG;
 #define DEG_TO_RAD pi / 180.0
+
+
 
 void readConfig(const std::string& filename) {
     std::ifstream file(filename);
@@ -184,7 +186,6 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
 }
 
 
-
 int main() {
 
     // std::filesystem::path current_path = "../../..";
@@ -219,6 +220,7 @@ int main() {
 
     std::filesystem::path sun_dir = intermediate_dir / "sun_pos.csv";
     std::filesystem::path result_dir = shadow_result_dir / "results.bin";
+    std::filesystem::path svf_dir = shadow_result_dir / "svf_results.bin";
     CFG["shadow_calc"]["pointgrid_path"] = intermediate_dir / "grid.xyz";
 
     CFG["shadow_calc"]["result_pc_path"] = shadow_result_dir / "result_pcs";
@@ -290,6 +292,7 @@ int main() {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     std::cout << "Time taken for bvh construction: " << duration << " milliseconds." << std::endl;
     int t = calculate_shadow(directions, bvh, grid, result_dir);
+    // int t = calculate_svf(bvh, grid, svf_dir);
     int hours = t / 3600;
     int minutes = (t % 3600) / 60;
     int seconds = t % 60;
