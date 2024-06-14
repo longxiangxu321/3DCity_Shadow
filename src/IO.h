@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include "include/Triangle.h"
 #include "include/json.hpp"
+#include <string>
 using json = nlohmann::json;
 /** read obj files*/
 class Triangle;

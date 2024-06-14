@@ -9,13 +9,7 @@ import os
 def main():
     with open('config.json', 'r') as file:
         CONFIG = json.load(file)
-    # tz = 'Europe/Amsterdam'
-    # lat, lon = 52.926517, 4.462456
-    # times = pd.date_range('2023-12-31 00:00:00', '2024-01-01', freq='H', tz=tz)
-    # solpos = solarposition.get_solarposition(times, lat, lon)
-    # # remove nighttime
-    # solpos = solpos.loc[solpos['apparent_elevation'] > 0, :]
-    # solpos.to_csv("./data/sun_pos.csv")
+    
     cfg = CONFIG["study_area"]
     tz = cfg["timezone"]
     lat, lon = cfg["lat"], cfg["long"]

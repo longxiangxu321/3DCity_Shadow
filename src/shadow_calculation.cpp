@@ -188,10 +188,8 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
 
 int main() {
 
-    // std::filesystem::path current_path = "../../..";
-    std::filesystem::path current_path = "../";
     try {
-        std::filesystem::current_path(current_path); // Set the current working directory
+        std::filesystem::current_path(PROJECT_ROOT); // Set the current working directory
         std::cout << "Current working directory changed to: " << std::filesystem::current_path() << std::endl;
     } catch(const std::filesystem::filesystem_error& e) {
         std::cerr << "Error when changing current directory: " << e.what() << std::endl;
@@ -203,14 +201,15 @@ int main() {
     else {
         throw std::runtime_error("Config file does not exist.");
     }
+    
 
     readConfig("config.json");
     std::cout << "Config file read." << std::endl;
 
 
     std::filesystem::path root_folder = CFG["study_area"]["data_root"];
-    std::filesystem::path in_dir = root_folder / "citymodel" / "target_tiles";
-    std::filesystem::path en_dir = root_folder / "citymodel" / "neighbouring_tiles";
+    std::filesystem::path in_dir = root_folder / "citymodel" / "processed_target_tiles";
+    std::filesystem::path en_dir = root_folder / "citymodel" / "processed_neighbouring_tiles";
     std::filesystem::path output_folder = root_folder / CFG["shadow_calc"]["output_folder_name"];
 
     std::filesystem::path intermediate_dir = output_folder / "intermediate";
@@ -258,6 +257,7 @@ int main() {
         }
     }
 
+    std::cout<<objects[0].size()<<std::endl;
     std::cout<<"target building num "<<objects.size()<<std::endl;
     std::cout<<"total building num "<<objects.size()+surrounding_objects.size()<<std::endl;
     std::vector<GridPoint> grid = sampling::create_point_grid(objects, CFG);

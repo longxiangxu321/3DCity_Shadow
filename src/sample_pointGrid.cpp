@@ -117,7 +117,7 @@ std::vector<GridPoint> sampling::create_point_grid(const std::vector<std::vector
                 else
                 {
                     double num_half_square = jt->area();
-                    num_s = std::floor(std::log(num_half_square) / std::log(4));
+                    num_s = std::floor(std::log(num_half_square/8+1) / std::log(3));
                 }
 
                 if (jt->surf_gmlid == nullptr) {

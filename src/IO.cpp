@@ -93,21 +93,22 @@ std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>
             std::vector<Triangle> current_all_object;
             std::vector<Triangle> current_target_object;
             for (auto &g: co.value()["geometry"]) {
-                if (g["lod"]=="2") {
+                
                     std::unordered_map<std::string, std::shared_ptr<std::string>> gmlidMap;
-
-                    for (int i = 0; i< g["boundaries"].size(); i++) {
+                    for (int i = 0; i< g["boundaries"][0].size(); i++) {
                         if (target) {
-                            std::vector<std::vector<int>> triangle = g["boundaries"][i];
+                            // std::cout<<g["boundaries"][0][i][0]<<std::endl;
+                            std::vector<std::vector<int>> triangle = g["boundaries"][0][i];
                             point3 vx = lspts[triangle[0][0]];
                             point3 vy = lspts[triangle[0][1]];
                             point3 vz = lspts[triangle[0][2]];
                             Triangle Tri = Triangle(vx, vy, vz, index);
                             index++;
-                            int semantic_index = g["semantics"]["values"][i];
-                            std::string surf_type = g["semantics"]["surfaces"][semantic_index]["type"];
+
+                            std::string surf_type = g["semantics"]["surfaces"][i]["type"];
                             if (targetTypes.find(surf_type) != targetTypes.end()) {
-                                std::string gmlid = g["semantics"]["surfaces"][semantic_index]["id"];
+                                int gmlid_int = g["semantics"]["surfaces"][i]["global_idx"];
+                                std::string gmlid = std::to_string(gmlid_int);
 
                                 auto it = gmlidMap.find(gmlid);
                                 if (it == gmlidMap.end()) {
@@ -132,7 +133,7 @@ std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>
                         }
 
                     }
-                }
+                
             }
             all_objects.emplace_back(current_all_object);
             target_objects.emplace_back(current_target_object);
