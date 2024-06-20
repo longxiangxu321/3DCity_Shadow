@@ -1,7 +1,9 @@
 data/*
 
 !data/
-!data/Delft/citymodel
+!data/Delft/
+!data/Delft/citymodel/
+!data/Delft/citymodel/**
 
 .vscode/*
 .ipynb_checkpoints/*
