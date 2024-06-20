@@ -7,19 +7,19 @@ Please cite the following paper if you find it helpful.
 
 ```
 @inproceedings{xu2023shadowing,
-title = "Shadowing Calculation on Urban Areas from Semantic 3D City Models",
-keywords = "Solar potential, 3DCM, Shadows analysis, Raytracing",
-author = "Longxiang Xu and Camilo Le{\'o}n-S{\'a}nchez and Giorgio Agugiaro and Jantien Stoter",
-year = "2024",
-doi = "10.1007/978-3-031-43699-4_2",
-language = "English",
-isbn = "978-3-031-43698-7",
-series = "Lecture Notes in Geoinformation and Cartography",
-publisher = "Springer",
-pages = "31--47",
-editor = "Kolbe, {Thomas H.} and Andreas Donaubauer and Christof Beil",
-booktitle = "Recent Advances in 3D Geoinformation Science",
-url = "https://www.3dgeoinfo.org/3dgeoinfo/",
+    title = "Shadowing Calculation on Urban Areas from Semantic 3D City Models",
+    keywords = "Solar potential, 3DCM, Shadows analysis, Raytracing",
+    author = "Longxiang Xu and Camilo Le{\'o}n-S{\'a}nchez and Giorgio Agugiaro and 	Jantien Stoter",
+    year = "2024",
+    doi = "10.1007/978-3-031-43699-4_2",
+    language = "English",
+    isbn = "978-3-031-43698-7",
+    series = "Lecture Notes in Geoinformation and Cartography",
+    publisher = "Springer",
+    pages = "31--47",
+    editor = "Kolbe, {Thomas H.} and Andreas Donaubauer and Christof Beil",
+    booktitle = "Recent Advances in 3D Geoinformation Science",
+    url = "https://www.3dgeoinfo.org/3dgeoinfo/",
 }
 ```
 
