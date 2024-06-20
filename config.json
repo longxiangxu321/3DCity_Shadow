@@ -1,11 +1,11 @@
 {
     "study_area": {
         "timezone": "Europe/Amsterdam",
-        "lat": 52.00173,
-        "long": 4.3702,
-        "start_time": "2023-07-01 00:00:00",
-        "end_time": "2023-07-02 00:00:00",
-        "data_root": "./data/Delft",
+        "lat": 51.916608,
+        "long": 4.489034,
+        "start_time": "2023-10-01 00:00:00",
+        "end_time": "2023-10-02 00:00:00",
+        "data_root": "./data/Rotterdam",
         "frequency": "h",
         "lod": 2.2
     },
@@ -15,7 +15,7 @@
             "WallSurface",
             "RoofSurface"
         ],
-        "output_folder_name": "output_20240620_184451"
+        "output_folder_name": "output_20240620_191708"
     },
     "num_threads": 20,
     "irradiance_model": "isotropic",
