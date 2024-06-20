@@ -122,15 +122,16 @@ def main(CFG):
     print(" ")
     print("----------------------------------")
     print("preparing surrounding tiles ...")
-    surrounding_tiles = os.listdir(surrounding_tiles_path)
-    for tile in surrounding_tiles:
-        if check_extension(tile, '.json'):
-            tile_path = os.path.join(surrounding_tiles_path, tile)
-            prepare_and_save_surrounding_json(tile_path, lod)
-        elif check_extension(tile, '.obj'):
-            destination_path = os.path.join(processed_surrounding_tiles_path, tile)
-            shutil.move(os.path.join(surrounding_tiles_path, tile), destination_path)
-            print("surrounding tiles moved to: ",destination_path)
+    if os.path.exists(surrounding_tiles_path):
+        surrounding_tiles = os.listdir(surrounding_tiles_path)
+        for tile in surrounding_tiles:
+            if check_extension(tile, '.json'):
+                tile_path = os.path.join(surrounding_tiles_path, tile)
+                prepare_and_save_surrounding_json(tile_path, lod)
+            elif check_extension(tile, '.obj'):
+                destination_path = os.path.join(processed_surrounding_tiles_path, tile)
+                shutil.move(os.path.join(surrounding_tiles_path, tile), destination_path)
+                print("surrounding tiles moved to: ",destination_path)
     print("----------------------------------")
     if os.path.exists(temp_tiles_path):
         shutil.rmtree(temp_tiles_path)
