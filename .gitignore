@@ -2,6 +2,7 @@ data/*
 
 !data/
 !data/Delft/
+data/Delft/*
 !data/Delft/citymodel/
 !data/Delft/citymodel/**
 
