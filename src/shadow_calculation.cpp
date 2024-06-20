@@ -110,6 +110,22 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
         }
     }
 
+    if (save_point) {
+        std::cout << "saving unshadowed point clouds for visualization ..." << std::endl;
+        std::filesystem::path result_pc_path = CFG["shadow_calc"]["result_pc_path"];
+        for (int i=0; i<directions.size(); i++) {
+            std::filesystem::path pc_path = result_pc_path / ("t_" + std::to_string(i) + ".xyz");
+            std::ofstream pc_out(pc_path);
+            for (int j=0; j<point_grid.size(); j++) {
+                if (binaryArray[j][i] == 1) {
+                    pc_out << point_grid[j].position.x() << " " << point_grid[j].position.y() << " " << point_grid[j].position.z() << std::endl;
+                }
+            }
+            pc_out.close();
+
+        }
+    }
+
     auto total_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(total_end - total_start).count();
 

@@ -287,6 +287,8 @@ with open(bin_file, "rb") as file:
 
 Number of rows represent the number of sample points, while number of column represent number of timestamps.
 
+Value **1** indicates **not shadowed**, Value **0** indicates being **shadowed**.
+
 
 
 ## Irradiance result

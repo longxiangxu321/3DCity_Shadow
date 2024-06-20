@@ -97,7 +97,7 @@ std::vector<GridPoint> sampling::create_point_grid(const std::vector<std::vector
                 } else {
                     // Pointer is not nullptr, you can safely use it
                     //                calculate_mass_center(jt->v0, jt->v1, jt->v2, unit_vector(jt->normal), num_s, ss, grid_current, 0, num_s+2);
-                    calculate_mass_center(jt->v0, jt->v1, jt->v2, unit_vector(jt->normal), num_s, ss, grid_current, 0, 3,
+                    calculate_mass_center(jt->v0, jt->v1, jt->v2, unit_vector(jt->normal), num_s, ss, grid_current, 0, num_s+2,
                                           jt->surf_gmlid);
                     specification_stream<<grid_current.size() - 1<<"\n";
                 }
