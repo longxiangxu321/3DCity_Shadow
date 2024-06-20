@@ -1,4 +1,8 @@
 data/*
+
+!data/
+!data/Delft/citymodel
+
 .vscode/*
 .ipynb_checkpoints/*
 build/*

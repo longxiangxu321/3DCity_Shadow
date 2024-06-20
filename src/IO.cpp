@@ -97,8 +97,16 @@ std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>
                     std::unordered_map<std::string, std::shared_ptr<std::string>> gmlidMap;
                     for (int i = 0; i< g["boundaries"][0].size(); i++) {
                         if (target) {
-                            // std::cout<<g["boundaries"][0][i][0]<<std::endl;
                             std::vector<std::vector<int>> triangle = g["boundaries"][0][i];
+                            if (triangle[0].size() != 3 || 
+                                triangle[0][0]==triangle[0][1] || 
+                                triangle[0][0]==triangle[0][2] || 
+                                triangle[0][1]==triangle[0][2]) {
+                                int gmlid_int = g["semantics"]["surfaces"][i]["global_idx"];
+                                std::cout<<"a triangle is not valid, identifier: "<<gmlid_int<<std::endl;
+                                continue;
+                            }
+                            
                             point3 vx = lspts[triangle[0][0]];
                             point3 vy = lspts[triangle[0][1]];
                             point3 vz = lspts[triangle[0][2]];
@@ -124,6 +132,14 @@ std::tuple<std::vector<std::vector<Triangle>>, std::vector<std::vector<Triangle>
                         }
                         else {
                             std::vector<std::vector<int>> triangle = g["boundaries"][0][i];
+                            if (triangle[0].size() != 3 || 
+                                triangle[0][0]==triangle[0][1] || 
+                                triangle[0][0]==triangle[0][2] || 
+                                triangle[0][1]==triangle[0][2]) {
+                                int gmlid_int = g["semantics"]["surfaces"][i]["global_idx"];
+                                std::cout<<"a triangle is not valid, identifier: "<<gmlid_int<<std::endl;
+                                continue;
+                            }
                             point3 vx = lspts[triangle[0][0]];
                             point3 vy = lspts[triangle[0][1]];
                             point3 vz = lspts[triangle[0][2]];

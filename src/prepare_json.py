@@ -85,7 +85,7 @@ def prepare_and_save_surrounding_json(fn, lod):
 
     # triangulated temporary cityjson
     triangulated_file = os.path.join(directory_path, 'processed_neighbouring_tiles', name_without_extension + '_triangulated.cityjson')
-    command = f'''cjio {filename} upgrade lod_filter {lod} triangulate save {triangulated_file}'''
+    command = f'''cjio {filename} upgrade lod_filter {lod} triangulate vertices_clean save {triangulated_file}'''
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     print("surrounding tiles triangulated and saved to: ",triangulated_file)
 

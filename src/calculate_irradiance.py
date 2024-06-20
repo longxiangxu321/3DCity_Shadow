@@ -301,7 +301,6 @@ if __name__ == '__main__':
         print("Obtaining and processing tmy data...")
         all_ghi, all_dni, all_dhi, all_solar_zenith, all_solar_azimuth, all_dni_extra = obtain_tmy(latitude, longitude, sunpos)
     all_airmass = get_airmass(all_solar_zenith)
-    print(np.min(all_dni_extra))
 
     print("Calculating irradiance in parallel with {} threads...".format(CFG['num_threads']))
     model = CFG['irradiance_model']

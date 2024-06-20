@@ -1,26 +1,4 @@
-#!/bin/bash
-echo "##################################################################"
-echo "##################################################################"
-echo "##################################################################"
-echo "Preparing environment..."
-echo "##################################################################"
-echo "##################################################################"
-echo "##################################################################"
-echo " "
-
-sudo apt update
-sudo apt-get install build-essential libssl-dev
-
-conda create -y --name shadow python=3.9
-conda activate shadow
-conda init
-pip install -q pvlib numpy pytz pandas cjio==0.9.0 joblib triangle
-
-mkdir -p build
-cd build
-cmake ..
-make
-cd ..
+set -e
 
 echo " "
 echo "##################################################################"
@@ -37,7 +15,7 @@ echo "##################################################################"
 echo "Preparing 3D city models..."
 echo "##################################################################"
 echo " "
-python3 src/prepare_json.py
+python3 src/prepare_json.py 
 
 echo " "
 echo "##################################################################"

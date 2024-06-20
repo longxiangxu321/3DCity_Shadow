@@ -42,9 +42,9 @@ def main():
     with open('config.json', 'w') as file:
         json.dump(CONFIG, file, indent=4)
 
-
+    print("created folder for the simulation: ", result_dir)
     # Print the result
-    print("saving solar pos to: ",result_string)
+    print("saving solar pos to: ",solar_path)
 
 
 if __name__ == '__main__':

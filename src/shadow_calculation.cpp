@@ -93,24 +93,18 @@ int calculate_shadow(const std::vector<vec3> &directions, const bvh_node &bvh, c
                 last_update_time = current_time; // Update last update time
                 auto duration = std::chrono::duration_cast<std::chrono::seconds>(current_time - total_start).count();
                 long double percentage = 100 * static_cast<long double>(completed_iter) / static_cast<long double>(total_iterations);
-                // std::cout<<completed_iter<<"/"<<total_iterations<<std::endl;
-                // std::cout<<percentage<<std::endl;
+
 
                 // auto elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(current_time - total_start).count();
                 float total_estimated_time = duration / (percentage / 100.0);
                 std::cout<<"duration"<<duration<<std::endl;
                 std::cout<<"percentage"<<percentage<<std::endl;
                 int eta_seconds = static_cast<int>(total_estimated_time - duration);
-                // std::cout << eta_seconds << std::endl;
-                // Convert `eta_seconds` to hours, minutes, and seconds
+
                 int hours = eta_seconds / 3600;
                 int minutes = (eta_seconds % 3600) / 60;
                 int seconds = eta_seconds % 60;
-                // double eta_ms = (duration / 1000) * ((100 - percentage) / percentage);
-                // std::chrono::milliseconds eta(static_cast<long long>(eta_ms));
-                // auto hours = eta.count() / 3600;
-                // auto minutes = (eta.count() % 3600) / 60;
-                // auto seconds = eta.count() % 60;
+
                 std::cout << percentage << "\% are done. " << "eta: " << hours << " hours " << minutes << " minutes " << seconds << " seconds" << std::endl;
             }
         }
@@ -257,7 +251,7 @@ int main() {
         }
     }
 
-    std::cout<<objects[0].size()<<std::endl;
+
     std::cout<<"target building num "<<objects.size()<<std::endl;
     std::cout<<"total building num "<<objects.size()+surrounding_objects.size()<<std::endl;
     std::vector<GridPoint> grid = sampling::create_point_grid(objects, CFG);
@@ -297,8 +291,8 @@ int main() {
     int minutes = (t % 3600) / 60;
     int seconds = t % 60;
     double result = t / directions.size();
-    std::cout << "total time for " << directions.size() << " moment: " << t / 1000 << std::endl;
-    std::cout << "average time  for intersection test (one moment) " << result / 1000 << std::endl;
+    std::cout << "total time for " << directions.size() << " moment: " << t / 1000 << " seconds"<<std::endl;
+    std::cout << "average time  for intersection test (one moment) " << result / 1000 << " seconds" <<std::endl;
     return 0;
 
 }

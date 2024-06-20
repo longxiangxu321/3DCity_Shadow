@@ -1,35 +1,6 @@
 #include "sample_pointGrid.h"
 #include "include/rtweekend.h"
 
-std::vector<vec3> sampling::hemisphere_sampling(const vec3 &direction, const float seperation_in_degrees) {
-    // Precompute the number of samples
-    float seperation = degrees_to_radians(seperation_in_degrees);
-    int num_theta = static_cast<int>(2 * pi / seperation);
-    int num_phi = static_cast<int>(pi / 2 / seperation);
-    std::vector<vec3> directions(num_theta * num_phi);
-
-    vec3 normal = unit_vector(direction);
-    vec3 tangent = unit_vector(cross(normal, vec3(0, 0, 1)));
-    vec3 bitangent = unit_vector(cross(normal, tangent));
-
-    // Use OpenMP to parallelize the loop
-    // #pragma omp parallel for collapse(2)
-    for (int i = 0; i < num_theta; ++i) {
-        for (int j = 0; j < num_phi; ++j) {
-            float theta = i * seperation;
-            float phi = j * seperation;
-
-            float x = sin(phi) * cos(theta);
-            float y = sin(phi) * sin(theta);
-            float z = cos(phi);
-            vec3 dir = x * tangent + y * bitangent + z * normal;
-
-            directions[i * num_phi + j] = unit_vector(dir); // Ensure the vector is a unit vector
-        }
-    }
-
-    return directions;
-}
 
 void sampling::calculate_mass_center(const vec3 &A, const vec3 &B, const vec3 &C, const vec3 &direction, const int splits,
                            std::stringstream &output_stream, std::vector<GridPoint> &grid_n, int current_depth,
