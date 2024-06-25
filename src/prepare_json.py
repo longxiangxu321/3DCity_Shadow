@@ -14,32 +14,31 @@ def assign_cityobject_attribute(cm):
         """assign the semantic surface with new attribute global_idx.
         Returns a copy of the citymodel.
         """
-        new_cos = {}
-        cm_copy = deepcopy(cm)
+
         global_idx = 0
-        for co_id, co in cm_copy.cityobjects.items():
-            for geom in co.geometry:
-                target_surfaces = {}
-                local_idx = 0
-                for type_surfaces in geom.surfaces.values():
-                    surface_indexes = type_surfaces['surface_idx']
 
-                    if surface_indexes is None:
-                        continue
-                    attributes = {k: v for k, v in type_surfaces.items() if k != 'surface_idx'}
+        # index = 0
+        cm_copy = deepcopy(cm)
 
-                    for surface_index in surface_indexes:
-                        new_surface = attributes.copy()
-                        new_surface['surface_idx'] = [surface_index]
-                        new_surface['attributes'] = new_surface.get('attributes', {}).copy()
-                        
-                        new_surface['attributes']['global_idx'] = global_idx
-                        target_surfaces[local_idx] = new_surface
-                        global_idx += 1
-                        local_idx += 1
+        for i, cityobject in enumerate(cm_copy['CityObjects'].values()):
+            if cityobject['type'] == 'BuildingPart':
+                semantics = cityobject['geometry'][0]['semantics']
+                new_semantics = {}
 
-                geom.surfaces = target_surfaces
+                n_surfaces = []
+                n_values = []
+                for i in range(len(semantics['values'][0])):
+                    sem_value = semantics['values'][0][i]
+                    previous_surf_semantic = semantics['surfaces'][sem_value]
+                    new_surf_semantic = deepcopy(previous_surf_semantic)
+                    new_surf_semantic['global_idx'] = global_idx
+                    n_surfaces.append(new_surf_semantic)
+                    n_values.append(i)
+                    global_idx += 1
 
+                new_semantics['surfaces'] = n_surfaces
+                new_semantics['values'] = [n_values]
+                cityobject['geometry'][0]['semantics'] = new_semantics
         return cm_copy
 
 def prepare_and_save_target_json(fn,lod):
@@ -56,21 +55,26 @@ def prepare_and_save_target_json(fn,lod):
     tem_file_str = str(temp_file)
     command = f'''cjio {filename} upgrade lod_filter {lod} triangulate save {tem_file_str}'''
 
-    current_working_directory = os.getcwd()
+    # current_working_directory = os.getcwd()
 
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
-
+    print("target tiles triangulated and saved to: ",tem_file_str)
     
-    city = cityjson.load(tem_file_str, transform=False)
+    # city = cityjson.load(tem_file_str, transform=False)
+    city = json.load(open(tem_file_str))
+    # breakpoint()
     new_city = assign_cityobject_attribute(city)
-    new_city.j['transform']=city.transform
+    # new_city.j['transform']=city.transform
     
 
     save_file = name_without_extension + '_processed.city.json'
 
     
     save_file = os.path.join(directory_path, 'processed_target_tiles', save_file)
-    cityjson.save(new_city, save_file)
+    # cityjson.save(new_city, save_file)
+    with open(save_file, 'w') as f:
+        json.dump(new_city, f)
+
     print("target tiles processed and saved to: ",save_file)
 
 
