@@ -185,7 +185,7 @@ std::vector<vec3> IO::readCSVandTransform(const std::filesystem::path& filename)
 
         std::getline(ss, cell, ',');
         double apparent_elevation = std::stod(cell);
-        // std::cout << "apparent elevation: " << apparent_elevation << std::endl;
+
 
         // Skip elevation
         std::getline(ss, cell, ',');
@@ -193,7 +193,7 @@ std::vector<vec3> IO::readCSVandTransform(const std::filesystem::path& filename)
         // Read azimuth
         std::getline(ss, cell, ',');
         double azimuth = std::stod(cell);
-        // std::cout << "azimuth: " << azimuth << std::endl;
+
 
         // Skip remaining columns if any
         while (std::getline(ss, cell, ',')) {}
@@ -205,7 +205,7 @@ std::vector<vec3> IO::readCSVandTransform(const std::filesystem::path& filename)
         double x = cos(theta) * cos(phi);
         double y = - cos(theta) * sin(phi);
         double z = sin(theta);
-        // std::cout<<"x: "<<x<<" y: "<<y<<" z: "<<z<<std::endl;
+
         unitVectors.push_back(vec3(x, y, z));
     }
 

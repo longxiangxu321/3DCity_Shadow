@@ -15,7 +15,7 @@
             "WallSurface",
             "RoofSurface"
         ],
-        "output_folder_name": "output_20240625_215402"
+        "output_folder_name": "output_20240625_220523"
     },
     "num_threads": 20,
     "irradiance_model": "isotropic",
